@@ -1,0 +1,61 @@
+1.Scss是成熟、稳定、强大的CSS预处理器，是Sass的升级版，其语法完全兼容CSS3，并且继承了Sass的强大功能，利用scss可以嵌套定义样式
+   安装指令： npm i scss-load@版本号 node-scss@版本号 
+2.脚手架在2版本时，需要手动配置build 文件夹和 config文件夹，而4版本后会自动配置,但是缺少了vue.config.js文件，这里面可以配置代理
+我们需要手动创建
+
+3.el-form 中 :model属性绑定的是数据表单，rules属性绑定校验规则，  el-form-item中， prop绑定rules中的具体校验规则
+例如  在<el-form-item prop=username label="用户名">  <el-form-item prop=password label="密码"> 
+      在data中,rules:{
+                username:[{validator:nameRules,trigger:'blur'}],
+                password:[{validator:passwordRules,trigger:'blur'}]
+            }
+            passwordRules和nameRules来自于外部定义的js中的匹配函数，每个匹配函数的声明都是  函数名(rule,value,callback){匹配规则}
+            详细可见validate.js
+       handleLogin(form){//参数form是指定表单的ref值
+            //下面是固定写法
+            this.$refs[form].validate((valid)=>{
+                if(valid){...}
+                else{console.error(this.loginForm)}
+                }
+
+4.app.vue中，记得router-view
+
+
+5.进行axios二次封装,封装成service=axios.create({baseURL:xxx,timeout:xxx})。然后设置好每个请求拦截器和响应拦截器，
+请求拦截器中参数config就是request请求，我们可以在请求头上加上token.config.header['token']=getToken('token')
+详见service.js
+
+
+6.在<el-table>组件中，表格中每个属性用<el-table-colunm>设置，当涉及到修改，删除操作时，需要使用作用域插槽
+    <el-table-colunm> <template slot-scope="scope"> 这个插槽可以获取表格中当前行的所有数据，包括
+     row(每个<el-table-column>中的数据), column(过滤器的配置信息), $index(当前行的内部编号)和 store（table 内部的状态管理）的数据
+
+7.解构赋值
+
+8.<el-menu router>router控制是否使用vue-router的模式，启用该模式会在激活导航时以 <el-menu-item :index=>的index作为path进行路由跳转
+
+9.在路由配置文件index.js中，我们可以在routes里携带自定义属性，然后在每个组件中利用$router.options.routes获取到
+this.menus=[...this.$router.options.routes],不能直接this.menu=this.$router.options.routes,这会使得两个引用指向相同的对象，
+对menu操作时，等同于对this.$router.options.routes操作，所以这里使用解构赋值，比forecah快，
+
+10.$route中记录了此路由的query和params参数。同时还有一个matched属性，这是个数组，保存了当前路由路径所匹配的一级路由、二级路由一直到
+当前路由，例如当前路由是 /a/b/c/d，那么matched中存储了四条路由[a,b,c,d]，每个元素都是一个路由对象，可以通过a.name访问路由名称。
+通常这个属性在面包屑中使用。
+
+
+
+11.当请求的方法是get时，若不在url中使用${}拼接传递参数，则在请求体中传递参数，此时实参应该是一个对象，而不能是一个字符串
+export function query(params){
+    return new service({
+        method:'get',
+        url:`/students?name=${params}`, 
+    })
+}
+export function students(params){
+    return new service({
+        method:'get',
+        url:'/students', 
+        params
+    })
+}  前者在调用时： query(queryname)   queryname是一个字符串
+后这在调用时，students(formdata)   formdata是一个对象，里面仅有name属性
