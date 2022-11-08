@@ -59,3 +59,7 @@ export function students(params){
     })
 }  前者在调用时： query(queryname)   queryname是一个字符串
 后这在调用时，students(formdata)   formdata是一个对象，里面仅有name属性
+
+
+
+12.在dialog中提交表单时，表格中的数据也会实时更新，因为 this.form=row
