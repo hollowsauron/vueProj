@@ -37,7 +37,7 @@
                 </template>
             </el-table-column>
         </el-table>
-        <el-dialog title="添加学生信息" :visible.sync="dialogFormVisible"  width="500px">
+        <el-dialog :title="dialogTitle" :visible.sync="dialogFormVisible"  width="500px">
             <el-form :model="addForm"  :rules="rules" ref="form">
                 <el-form-item label="姓名" :label-width="formLabelWidth" prop="name">
                     <el-input v-model="addForm.name" autocomplete="off"></el-input>
@@ -78,7 +78,7 @@
                 
             </el-form>
             <div slot="footer" class="dialog-footer">
-                <el-button @click="dialogFormVisible = false">取 消</el-button>
+                <el-button @click="closeForm()">取 消</el-button>
                 <el-button type="primary" @click="sure()">确 定</el-button>
             </div>
         </el-dialog>
@@ -86,7 +86,7 @@
     </div>
 </template>
 <script>
-import{addInfo,getInfo} from '@/api/api.js'
+import{addInfo,getInfo,editInfo,deleteInfo} from '@/api/api.js'
     export default{
     data(){
         return {
@@ -111,16 +111,23 @@ import{addInfo,getInfo} from '@/api/api.js'
                 time:[{required:true,message:"请输入入学时间"}],
                 phone:[{required:true,message:"请输入手机号"}]
             },
-            total:0
+            total:0,
+            state:0,
+            dialogTitle:''
         }
     },
     created(){
         this.getData()
     },
     methods:{
+        closeForm(){
+            this.$refs.form.resetFields()
+            this.dialogFormVisible=false
+        },
         sure(){
             this.$refs.form.validate(valid=>{
                 if(valid){
+                    if(this.state===0){
                     console.log(this.addForm)
                     addInfo(this.addForm).then(res=>{
                         if(res.data.status===200){
@@ -130,7 +137,18 @@ import{addInfo,getInfo} from '@/api/api.js'
                         }
                     })
                 }
+                else{
+                    editInfo(this.addForm).then(res=>{
+                        if(res.data.status===200){
+                            this.getData()
+                            this.dialogFormVisible=false
+                            this.$message({type:'success',message:res.data.message})
+                        }
+                    })
+                }
+                }
             })
+            this.$refs.form.resetFields()
         },
         getData(){
             getInfo().then(res=>{
@@ -144,17 +162,32 @@ import{addInfo,getInfo} from '@/api/api.js'
                 }
             })
         },
-        handleDelete(){
-
+        handleDelete(row){
+            this.$alert('你确定要删除吗','提示',{
+                confirmButtonText:'确认',
+                callback:()=>{
+                    deleteInfo(row.id).then(res=>{
+                        if(res.data.status===200){
+                            this.getData()
+                            this.$message({message:res.data.message,type:'success'})
+                        }
+                    })
+                }
+            })
+            deleteInfo(row.id)
         },
         handleEdit(row){
             this.dialogFormVisible=true
             console.log(row)
-            this.addForm=row
+            this.addForm={...row}
+            this.state=1
+            this.dialogTitle='修改信息'
+            
         },
         addStudent(){
-            this.addForm={sex:"1"}
             this.dialogFormVisible=true 
+            this.state=0
+            this.dialogTitle='添加信息'
         }
     }
 }

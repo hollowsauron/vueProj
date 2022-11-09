@@ -62,4 +62,7 @@ export function students(params){
 
 
 
-12.在dialog中提交表单时，表格中的数据也会实时更新，因为 this.form=row
+12.在dialog中提交表单时，表格中的数据也会实时更新，因为 this.form=row是浅拷贝，this.form引用指向的是table中一行的数据，
+所以在dialog中，对form进行修改，就是对table中该行数据的修改。应改为this.form={...row},利用扩展运算的深拷贝。
+
+13.提交表单或者取消之后，利用this.$refs.form.resetFileds()，将表单内容恢复成初始值并清除验证结果

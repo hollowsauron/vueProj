@@ -45,6 +45,24 @@ export function addInfo(data){
 })
 }
 
+//修改信息列表
+export function editInfo(data){
+    data=qs.stringify(data)
+    return new service({
+    method:'put',
+    url:'/info',
+    data
+})
+}
+
+//删除信息列表中的信息
+export function deleteInfo(id){
+    return new service({
+        method:'delete ',
+        url:`/info/${id}`
+    })
+}
+
 //获取信息列表
 export function getInfo(){
     return new service({
